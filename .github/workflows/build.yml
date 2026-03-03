@@ -7,6 +7,62 @@ on:
 
 jobs:
   build:
-    uses: zmkfirmware/zmk/.github/workflows/user-build-matrices.yml@main
-    with:
-      artifact-name: firmware
+    runs-on: ubuntu-latest
+    container:
+      image: zmkfirmware/zmk-build-arm:stable
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - board: seeeduino_xiao_ble
+            shield: totem_dongle
+          - board: seeeduino_xiao_ble
+            shield: totem_left
+          - board: seeeduino_xiao_ble
+            shield: totem_right
+          - board: seeeduino_xiao_ble
+            shield: settings_reset
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache west modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            modules/
+            tools/
+            zephyr/
+            bootloader/
+          key: ${{ runner.os }}-west-${{ hashFiles('config/west.yml') }}
+          restore-keys: ${{ runner.os }}-west-
+
+      - name: West init
+        run: west init -l config
+
+      - name: West update
+        run: west update
+
+      - name: West Zephyr export
+        run: west zephyr-export
+
+      - name: Build ${{ matrix.shield }}
+        run: |
+          west build -s zmk/app -b ${{ matrix.board }} -- \
+            -DSHIELD="${{ matrix.shield }}" \
+            -DZMK_CONFIG="${GITHUB_WORKSPACE}/config"
+
+      - name: Collect artifact
+        run: |
+          mkdir -p firmware
+          if [ -f build/zephyr/zmk.uf2 ]; then
+            cp build/zephyr/zmk.uf2 \
+              "firmware/${{ matrix.board }}_${{ matrix.shield }}-zmk.uf2"
+          fi
+
+      - name: Upload ${{ matrix.shield }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.shield }}
+          path: firmware/
