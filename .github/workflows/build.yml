@@ -14,14 +14,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - board: seeeduino_xiao_ble
+          # xiao_ble//zmk is the Zephyr 4.x board identifier for XIAO nRF52840
+          - board: xiao_ble//zmk
             shield: totem_dongle
-          - board: seeeduino_xiao_ble
+            artifact: xiao_ble_zmk_totem_dongle
+          - board: xiao_ble//zmk
             shield: totem_left
-          - board: seeeduino_xiao_ble
+            artifact: xiao_ble_zmk_totem_left
+          - board: xiao_ble//zmk
             shield: totem_right
-          - board: seeeduino_xiao_ble
+            artifact: xiao_ble_zmk_totem_right
+          - board: xiao_ble//zmk
             shield: settings_reset
+            artifact: xiao_ble_zmk_settings_reset
 
     steps:
       - name: Checkout
@@ -49,7 +54,7 @@ jobs:
 
       - name: Build ${{ matrix.shield }}
         run: |
-          west build -s zmk/app -b ${{ matrix.board }} -- \
+          west build -s zmk/app -b "${{ matrix.board }}" -- \
             -DSHIELD="${{ matrix.shield }}" \
             -DZMK_CONFIG="${GITHUB_WORKSPACE}/config"
 
@@ -57,8 +62,7 @@ jobs:
         run: |
           mkdir -p firmware
           if [ -f build/zephyr/zmk.uf2 ]; then
-            cp build/zephyr/zmk.uf2 \
-              "firmware/${{ matrix.board }}_${{ matrix.shield }}-zmk.uf2"
+            cp build/zephyr/zmk.uf2 "firmware/${{ matrix.artifact }}-zmk.uf2"
           fi
 
       - name: Upload ${{ matrix.shield }}
