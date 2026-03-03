@@ -1,8 +1,9 @@
 // Copyright 2022 Manna Harbour
 // https://github.com/manna-harbour/miryoku
 
-// Used by totem_left and totem_right shields.
-// Path "../miryoku/" resolves to the miryoku/ directory at the repo root.
+// Used by the totem_dongle shield. Identical keymap to the halves —
+// the dongle compiles the full layout so it can process key events
+// received from the two BLE peripherals.
 
 #include "../miryoku/custom_config.h"
 #include "../miryoku/mapping/38/totem.h"

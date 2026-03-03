@@ -1,0 +1,17 @@
+---
+include:
+  # Dongle — USB central, connects to both halves via BLE
+  - board: seeeduino_xiao_ble
+    shield: totem_dongle
+
+  # Left half — BLE peripheral
+  - board: seeeduino_xiao_ble
+    shield: totem_left
+
+  # Right half — BLE peripheral
+  - board: seeeduino_xiao_ble
+    shield: totem_right
+
+  # settings_reset — flash to any device to wipe BLE bonds (use when re-pairing)
+  - board: seeeduino_xiao_ble
+    shield: settings_reset
